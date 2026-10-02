@@ -1,0 +1,17 @@
+bus,time,passengers
+25A,morning,70
+25A,afternoon,35
+25A,evening,75
+25A,night,20
+10B,morning,60
+10B,afternoon,30
+10B,evening,70
+10B,night,18
+18C,morning,65
+18C,afternoon,40
+18C,evening,72
+18C,night,22
+45,morning,55
+45,afternoon,28
+45,evening,68
+45,night,15

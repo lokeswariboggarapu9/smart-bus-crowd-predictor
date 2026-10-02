@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Bus Crowd Predictor</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        header {
+            background: #123c69;
+            color: white;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 26px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 35px auto;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            color: #123c69;
+            font-size: 32px;
+        }
+
+        .welcome p {
+            margin-top: 10px;
+            color: #666;
+        }
+
+        /* Dashboard */
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-box {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .dashboard-box h3 {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .dashboard-box p {
+            margin-top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #123c69;
+        }
+
+        /* Input Card */
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #123c69;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0d2e50;
+        }
+
+        /* Result */
+
+        #result {
+            display: none;
+            margin-top: 35px;
+        }
+
+        .result-title {
+            text-align: center;
+            color: #123c69;
+            margin-bottom: 20px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .result-box {
+            background: white;
+            padding: 25px 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .result-box h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .result-box p {
+            font-size: 22px;
+            font-weight: bold;
+            color: #123c69;
+        }
+
+        #crowdLevel {
+            color: #d9534f;
+        }
+
+        /* Percentage */
+
+        .percentage-card {
+            background: white;
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .progress-container {
+            background: #ddd;
+            height: 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #123c69;
+            transition: width 1s;
+        }
+
+        /* AI */
+
+        .ai-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #eef5ff;
+            border-left: 5px solid #123c69;
+            border-radius: 8px;
+        }
+
+        .ai-box h3 {
+            color: #123c69;
+            margin-bottom: 10px;
+        }
+
+        /* Recommendation */
+
+        .recommendation {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            text-align: center;
+            color: #256029;
+            font-weight: bold;
+        }
+
+        .alert {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            text-align: center;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            background: #123c69;
+            color: white;
+        }
+
+        @media (max-width: 800px) {
+
+            .form-grid,
+            .result-grid,
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h1>🚌 Smart Bus Crowd Predictor</h1>
+
+    <span>Smart & Safe Public Transport</span>
+
+</header>
+
+
+<div class="container">
+
+
+    <div class="welcome">
+
+        <h2>Predict Bus Crowd Before You Travel</h2>
+
+        <p>
+            Use smart prediction to find crowd level and better travel time.
+        </p>
+
+    </div>
+
+
+    <!-- DASHBOARD -->
+
+    <div class="dashboard">
+
+        <div class="dashboard-box">
+
+            <h3>Total Buses</h3>
+
+            <p>12</p>
+
+        </div>
+
+
+        <div class="dashboard-box">
+
+            <h3>Low Crowd</h3>
+
+            <p>5</p>
+
+        </div>
+
+
+        <div class="dashboard-box">
+
+            <h3>High Crowd</h3>
+
+            <p>3</p>
+
+        </div>
+
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div class="card">
+
+        <div class="form-grid">
+
+
+            <div>
+
+                <label>Bus Number</label>
+
+                <select id="bus">
+
+                    <option value="25A">25A</option>
+
+                    <option value="10B">10B</option>
+
+                    <option value="18C">18C</option>
+
+                    <option value="45">45</option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label>Route</label>
+
+                <select id="route">
+
+                    <option>Eluru → Vijayawada</option>
+
+                    <option>Vijayawada → Eluru</option>
+
+                    <option>Eluru → Tadepalligudem</option>
+
+                    <option>Vijayawada → Guntur</option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label>Travel Time</label>
+
+                <select id="time">
+
+                    <option value="morning">8:00 AM</option>
+
+                    <option value="afternoon">1:00 PM</option>
+
+                    <option value="evening">6:00 PM</option>
+
+                    <option value="night">9:00 PM</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <button onclick="predictCrowd()">
+
+            🔍 Predict Crowd
+
+        </button>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div id="result">
+
+
+        <h2 class="result-title">
+
+            Crowd Prediction Result
+
+        </h2>
+
+
+        <div class="result-grid">
+
+
+            <div class="result-box">
+
+                <h3>Bus Number</h3>
+
+                <p id="busResult">-</p>
+
+            </div>
+
+
+            <div class="result-box">
+
+                <h3>Expected Passengers</h3>
+
+                <p id="passengers">-</p>
+
+            </div>
+
+
+            <div class="result-box">
+
+                <h3>Bus Capacity</h3>
+
+                <p>80 Seats</p>
+
+            </div>
+
+
+            <div class="result-box">
+
+                <h3>Crowd Level</h3>
+
+                <p id="crowdLevel">-</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- CROWD PERCENTAGE -->
+
+        <div class="percentage-card">
+
+            <h3>📊 Crowd Percentage</h3>
+
+            <div class="progress-container">
+
+                <div class="progress-bar" id="progressBar"></div>
+
+            </div>
+
+            <p id="percentage"
+               style="margin-top:10px;font-weight:bold;">
+
+                0%
+
+            </p>
+
+        </div>
+
+
+        <!-- AI PREDICTION -->
+
+        <div class="ai-box">
+
+            <h3>🤖 AI Prediction</h3>
+
+            <p id="aiPrediction">
+
+                Prediction will appear here.
+
+            </p>
+
+        </div>
+
+
+        <!-- RECOMMENDATION -->
+
+        <div class="recommendation">
+
+            <p id="recommendation">
+
+                🚌 Recommended travel time will appear here.
+
+            </p>
+
+        </div>
+
+
+        <!-- ALERT -->
+
+        <div class="alert">
+
+            <p id="message">
+
+                Prediction generated successfully.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<footer>
+
+    Smart Bus Crowd Predictor © 2026
+
+</footer>
+
+
+
+<script>
+
+
+function predictCrowd() {
+
+
+    let bus =
+        document.getElementById("bus").value;
+
+
+    let time =
+        document.getElementById("time").value;
+
+
+    let passengers;
+
+    let crowd;
+
+    let percentage;
+
+    let message;
+
+    let aiPrediction;
+
+    let recommendation;
+
+
+
+    if (time === "morning") {
+
+
+        passengers = 70;
+
+        crowd = "HIGH";
+
+        percentage = 88;
+
+
+        message =
+            "⚠️ Peak morning time. Heavy crowd expected.";
+
+
+        aiPrediction =
+            "AI predicts high crowd because morning is a peak travel period.";
+
+
+        recommendation =
+            "🚌 Recommended Time: 1:00 PM or 9:00 PM";
+
+
+    }
+
+
+    else if (time === "afternoon") {
+
+
+        passengers = 35;
+
+        crowd = "MEDIUM";
+
+        percentage = 44;
+
+
+        message =
+            "ℹ️ Moderate crowd expected.";
+
+
+        aiPrediction =
+            "AI predicts moderate crowd during afternoon hours.";
+
+
+        recommendation =
+            "🚌 Recommended Time: Afternoon is suitable for travel.";
+
+
+    }
+
+
+    else if (time === "evening") {
+
+
+        passengers = 75;
+
+        crowd = "HIGH";
+
+        percentage = 94;
+
+
+        message =
+            "⚠️ Peak evening time. Heavy crowd expected.";
+
+
+        aiPrediction =
+            "AI predicts high crowd because evening is a peak travel period.";
+
+
+        recommendation =
+            "🚌 Recommended Time: 9:00 PM";
+
+
+    }
+
+
+    else {
+
+
+        passengers = 20;
+
+        crowd = "LOW";
+
+        percentage = 25;
+
+
+        message =
+            "✅ Low crowd expected. Good time to travel.";
+
+
+        aiPrediction =
+            "AI predicts low crowd during night hours.";
+
+
+        recommendation =
+            "🚌 Recommended Time: 9:00 PM is a good choice.";
+
+
+    }
+
+
+
+    document.getElementById("busResult").innerText =
+        bus;
+
+
+    document.getElementById("passengers").innerText =
+        passengers + " passengers";
+
+
+    document.getElementById("crowdLevel").innerText =
+        crowd;
+
+
+    document.getElementById("percentage").innerText =
+        percentage + "%";
+
+
+    document.getElementById("progressBar").style.width =
+        percentage + "%";
+
+
+    document.getElementById("aiPrediction").innerText =
+        aiPrediction;
+
+
+    document.getElementById("recommendation").innerText =
+        recommendation;
+
+
+    document.getElementById("message").innerText =
+        message;
+
+
+    document.getElementById("result").style.display =
+        "block";
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
